@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home EduDashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hero {
+            background-image: url('https://juraganposter.net/product_images/uploaded_images/peta-indonesia-hd.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <nav class="bg-green-900 p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#" class="text-white text-2xl font-bold">EduDashboard</a>
+            <div class="flex space-x-4">
+                <a href="/" class="text-white hover:font-bold transition duration-300">Home</a>
+                <a href="/dashboard" class="text-white hover:font-bold transition duration-300">Dashboard</a>
+                <a href="/about" class="text-white hover:font-bold transition duration-300">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero h-96 flex items-center justify-center bg-cover bg-center relative">
+        <div class="absolute inset-0 bg-black opacity-60"></div>
+        <h1 class="text-4xl text-white font-bold relative z-10">Welcome To EduDashboard</h1>
+    </div>
+
+    <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+        <div class="container mx-auto my-8">
+            <h2 class="text-2xl font-bold mb-4">Sistem Pendidikan di Indonesia</h2>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-white p-4 shadow-md rounded">
+                    <h3 class="text-lg font-bold">Pendidikan Anak Usia Dini</h3>
+                    <ul class="list-disc pl-4">
+                        <li>TK - Taman Kanak-Kanak: Pendidikan prasekolah untuk anak-anak usia 4–6 tahun, sebagai persiapan untuk memasuki pendidikan dasar.</li>
+                        <li>KB - Kelompok Bermain: Jenjang prasekolah untuk anak usia 2–4 tahun, memberikan pengalaman belajar awal dan sosial bagi anak-anak.</li>
+                        <li>TPA - Taman Penitipan Anak: Tempat penitipan anak yang biasanya menawarkan program pembelajaran awal untuk anak usia 2–4 tahun, mirip dengan Kelompok Bermain.</li>
+                        <li>SPS - Satuan PAUD Sejenis: Lembaga pendidikan anak usia dini yang bentuknya lebih fleksibel dan disesuaikan dengan kebutuhan lokal, seperti posyandu.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-4 shadow-md rounded">
+                    <h3 class="text-lg font-bold">Pendidikan Non-Formal</h3>
+                    <ul class="list-disc pl-4">
+                        <li>PKBM - Pusat Kegiatan Belajar Masyarakat: Lembaga pendidikan nonformal untuk masyarakat, meliputi program keaksaraan, paket A (setara SD), paket B (setara SMP), dan paket C (setara SMA).</li>
+                        <li>SKB - Sanggar Kegiatan Belajar: Pusat pendidikan nonformal yang memberikan layanan pendidikan dan pelatihan untuk masyarakat, biasanya ada program keaksaraan, pendidikan kesetaraan, dan keterampilan.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-4 shadow-md rounded">
+                    <h3 class="text-lg font-bold">Pendidikan Formal</h3>
+                    <ul class="list-disc pl-4">
+                        <li>SD - Sekolah Dasar: Jenjang pendidikan dasar selama 6 tahun untuk anak usia sekitar 7–12 tahun.</li>
+                        <li>SMP - Sekolah Menengah Pertama: Pendidikan menengah pertama selama 3 tahun setelah lulus dari SD, untuk usia sekitar 13–15 tahun.</li>
+                        <li>SMA - Sekolah Menengah Atas: Pendidikan menengah atas selama 3 tahun setelah SMP, persiapan menuju pendidikan tinggi atau pekerjaan.</li>
+                        <li>SMK - Sekolah Menengah Kejuruan: Jenjang pendidikan menengah yang berfokus pada keahlian tertentu untuk langsung siap kerja setelah lulus.</li>
+                        <li>SLB - Sekolah Luar Biasa: Sekolah yang khusus untuk siswa dengan kebutuhan khusus, tersedia dari jenjang SD hingga SMA dengan kurikulum dan fasilitas yang disesuaikan.</li>
+                    </ul>
+                </div>
+            </div>
+
+          
+            <div class="my-8">
+                <h2 class="text-2xl font-bold mb-4">Tantangan dan Inisiatif</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white p-4 shadow-md rounded">
+                        <h3 class="text-lg font-bold">Tantangan</h3>
+                        <ul class="list-disc pl-4">
+                            <li>Penyebaran sumber daya pendidikan dan akses yang tidak merata di seluruh wilayah</li>
+                            <li>Angka putus sekolah yang tinggi, terutama di daerah terpencil dan kurang beruntung</li>
+                            <li>Kualitas pengajaran dan pembelajaran, terutama di sekolah-sekolah pedesaan</li>
+                            <li>Kurangnya opsi pendidikan kejuruan dan teknis</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 shadow-md rounded">
+                        <h3 class="text-lg font-bold">Inisiatif Pemerintah</h3>
+                        <ul class="list-disc pl-4">
+                            <li>Memperluas akses pendidikan anak usia dini</li>
+                            <li>Meningkatkan infrastruktur dan fasilitas di sekolah-sekolah pedesaan</li>
+                            <li>Meningkatkan pelatihan dan pengembangan profesional guru</li>
+                            <li>Mempromosikan program-program pendidikan kejuruan dan teknis</li>
+                            <li>Menyediakan bantuan keuangan dan beasiswa bagi siswa kurang beruntung</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="my-8">
+                <h2 class="text-2xl font-bold mb-4">Prospek ke Depan</h2>
+                <div class="bg-white p-4 shadow-md rounded">
+                    <p>Indonesia telah membuat kemajuan signifikan dalam memperluas akses pendidikan, tetapi tantangan tetap ada dalam memastikan pemerataan kualitas dan hasil di seluruh negeri. Pemerintah bekerja untuk mengatasi masalah-masalah ini melalui berbagai inisiatif, dengan fokus pada peningkatan infrastruktur, kualitas guru, dan pelatihan kejuruan. Dengan komitmen dan investasi yang berkelanjutan, sistem pendidikan Indonesia siap untuk terus berkembang dan memberikan peluang yang lebih baik bagi anak-anak muda, berkontribusi pada kemajuan sosial dan ekonomi negara secara keseluruhan.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-green-900 text-white py-4">
+        <div class="container mx-auto text-center">
+            &copy; EduDashboard All Right Reserved.
+        </div>
+    </footer>
+</body>
+</html>
