@@ -9,75 +9,118 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 font-sans">
-    <nav class="bg-green-900 p-4 shadow-lg">
-        <div class="container mx-auto flex justify-between items-center">
-            <a href="#" class="text-white text-2xl font-bold">EduDashboard</a>
-            <div class="flex space-x-4">
-                <a href="/" class="text-white hover:font-bold transition duration-300">Home</a>
-                <a href="/dashboard" class="text-white hover:font-bold transition duration-300">Dashboard</a>
-                <a href="/about" class="text-white hover:font-bold transition duration-300">About</a>
+    <header class="flex flex-wrap md:justify-start md:flex-nowrap z-50 w-full py-4">
+            <nav class="relative max-w-7xl w-full flex flex-wrap md:grid md:grid-cols-12 basis-full items-center px-4 md:px-6 md:px-8 mx-auto">
+            <div class="md:col-span-3">
+                <!-- Logo -->
+                <a class="flex-none rounded-xl text-xl inline-block font-bold text-gradient focus:outline-none focus:opacity-80" href="/" aria-label="EduDashboard">
+                    <div class="flex items-center gap-2">
+                        <!-- Icon -->
+                        <span class="text-indigo-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 20l9-5-9-5-9 5 9 5z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4l9 5-9 5-9-5 9-5z" />
+                            </svg>
+                        </span>
+                        <!-- Logo Text -->
+                        <h1 class="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+                            EduDashboard
+                        </h1>
+                    </div>
+                </a>
+                
+                <!-- End Logo -->
             </div>
-        </div>
-    </nav>
+        
 
-    <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
-        <div class="container mx-auto my-8">
-            <h1 class="text-3xl font-bold mb-4">Tentang EduDashboard</h1>
-            <p class="text-gray-700 mb-8">
-                EduDashboard adalah sebuah proyek yang dikembangkan untuk mata kuliah Sistem Informasi Akuisisi Data di Universitas Andalas. Situs web ini dibuat oleh sebuah tim yang terdiri dari empat orang mahasiswa:
-            </p>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center">
-                    <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-green-900 mb-4">
-                        IZZ
-                    </div>
-                    <h3 class="text-lg font-bold mb-2">Izza Try Malinda</h3>
-                    <p class="text-gray-600">2211521014</p>
+        
+            <!-- Collapse -->
+            <div id="hs-navbar-hcail" class="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow md:block md:w-auto md:basis-auto md:order-2 md:col-span-6" aria-labelledby="hs-navbar-hcail-collapse">
+                <div class="flex flex-col gap-y-4 gap-x-0 mt-5 md:flex-row md:justify-center md:items-center md:gap-y-0 md:gap-x-7 md:mt-0">
+                <div>
+                    <a class="inline-block text-black hover:text-gray-600 focus:outline-none focus:text-gray-600" href="/" aria-current="page">Home</a>
                 </div>
-
-                <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center">
-                    <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-green-900 mb-4">
-                        ILH
-                    </div>
-                    <h3 class="text-lg font-bold mb-2">Ilham Nofaldi</h3>
-                    <p class="text-gray-600">2211522028</p>
+                <div>
+                    <a class="inline-block text-black hover:text-gray-600 focus:outline-none focus:text-gray-600" href="/dashboard">Dashboard</a>
                 </div>
-
-                <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center">
-                    <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-green-900 mb-4">
-                        HAL
-                    </div>
-                    <h3 class="text-lg font-bold mb-2">Haleef Rayyan</h3>
-                    <p class="text-gray-600">2211523002</p>
+                <div>
+                    <a class="relative inline-block text-black focus:outline-none before:absolute before:bottom-0.5 before:start-0 before:-z-[1] before:w-full before:h-1 before:bg-lime-400" href="/about">About</a>
                 </div>
-
-                <div class="bg-white rounded-lg shadow-md p-6 flex flex-col items-center">
-                    <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-green-900 mb-4">
-                        NAB
-                    </div>
-                    <h3 class="text-lg font-bold mb-2">Nabil Rizki Navisa</h3>
-                    <p class="text-gray-600">2211522018</p>
                 </div>
             </div>
+            <!-- End Collapse -->
+            </nav>
+        </header>
 
-            <div class="bg-white rounded-lg shadow-md p-6 mt-8">
-                <h2 class="text-2xl font-bold mb-4 text-center">Project Repository</h2>
-                <div class="flex justify-center">
-                    <a href="https://github.com/nabilrn/EduDashboard" class="text-green-900 hover:text-green-700 transition duration-300 flex items-center space-x-2">
-                        <i class="fab fa-github text-xl"></i>
-                        <span>View on GitHub</span>
-                    </a>
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Title and Introduction -->
+            <section class="text-center mb-12">
+                <h1 class="text-4xl font-extrabold text-gray-800 mb-4">Tentang EduDashboard</h1>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    EduDashboard adalah sebuah proyek yang dikembangkan untuk mata kuliah Sistem Informasi Akuisisi Data di Universitas Andalas. Situs web ini dibuat oleh sebuah tim yang terdiri dari empat orang mahasiswa:
+                </p>
+            </section>
+    
+            <!-- Team Members -->
+            <section>
+                <h2 class="text-2xl font-bold text-gray-700 text-center mb-8">Tim Kami</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Team Member Card -->
+                    <div class="bg-white rounded-lg shadow-md p-6 transform hover:scale-105 transition">
+                        <div class="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center text-3xl font-bold text-indigo-500 mx-auto mb-4">
+                            IZZ
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 text-center">Izza Try Malinda</h3>
+                        <p class="text-gray-600 text-center">2211521014</p>
+                    </div>
+    
+                    <div class="bg-white rounded-lg shadow-md p-6 transform hover:scale-105 transition">
+                        <div class="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center text-3xl font-bold text-indigo-500 mx-auto mb-4">
+                            ILH
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 text-center">Ilham Nofaldi</h3>
+                        <p class="text-gray-600 text-center">2211522028</p>
+                    </div>
+    
+                    <div class="bg-white rounded-lg shadow-md p-6 transform hover:scale-105 transition">
+                        <div class="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center text-3xl font-bold text-indigo-500 mx-auto mb-4">
+                            HAL
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 text-center">Haleef Rayyan</h3>
+                        <p class="text-gray-600 text-center">2211523002</p>
+                    </div>
+    
+                    <div class="bg-white rounded-lg shadow-md p-6 transform hover:scale-105 transition">
+                        <div class="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center text-3xl font-bold text-indigo-500 mx-auto mb-4">
+                            NAB
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 text-center">Nabil Rizki Navisa</h3>
+                        <p class="text-gray-600 text-center">2211522018</p>
+                    </div>
+                </div>
+            </section>
+    
+            <!-- Repository Section -->
+            <section class="mt-12 text-center">
+                <h2 class="text-2xl font-bold text-gray-700 mb-4">Project Repository</h2>
+                <a href="https://github.com/nabilrn/EduDashboard" class="text-indigo-500 hover:text-indigo-700 transition flex items-center justify-center space-x-2">
+                    <i class="fab fa-github text-2xl"></i>
+                    <span>Lihat di GitHub</span>
+                </a>
+            </section>
+        </main>
+    
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-6">
+            <div class="text-center">
+                <p class="text-sm">&copy; 2024 EduDashboard. All rights reserved.</p>
+                <div class="mt-2 space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
-            
-        </div>
-    </div>
-
-    <footer class="bg-green-900 text-white py-4">
-        <div class="container mx-auto text-center">
-            &copy; EduDashboard All Right Reserved.
-        </div>
-    </footer>
-</body>
-</html>
+        </footer>
+    </body>
+    </html>
