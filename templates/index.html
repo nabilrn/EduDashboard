@@ -83,6 +83,60 @@
                     </div>
                 </div>
             </div>
+            <!-- Add this section after Analysis Summary div in resultsSection -->
+                <div class="bg-white border border-gray-200 shadow-lg rounded-lg p-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Clustering Evaluation</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Silhouette Score -->
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <h3 class="text-lg font-bold text-indigo-600 mb-3">Silhouette Score</h3>
+                            <div class="flex items-center justify-between">
+                                <div id="silhouetteScore" class="text-3xl font-bold text-gray-700"></div>
+                                <div class="text-sm text-gray-500">
+                                    <span class="tooltip" title="Range: -1 to 1. Higher values indicate better cluster separation.">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">Measures cluster separation quality</p>
+                        </div>
+
+                        <!-- Calinski-Harabasz Score -->
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <h3 class="text-lg font-bold text-indigo-600 mb-3">Calinski-Harabasz Score</h3>
+                            <div class="flex items-center justify-between">
+                                <div id="calinskiScore" class="text-3xl font-bold text-gray-700"></div>
+                                <div class="text-sm text-gray-500">
+                                    <span class="tooltip" title="Higher values indicate better-defined clusters.">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">Measures cluster density</p>
+                        </div>
+
+                        <!-- Top 5 Accuracy -->
+                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <h3 class="text-lg font-bold text-indigo-600 mb-3">Top 5 Accuracy</h3>
+                            <div class="flex items-center justify-between">
+                                <div id="top5Accuracy" class="text-3xl font-bold text-gray-700"></div>
+                                <div class="text-sm text-gray-500">
+                                    <span class="tooltip" title="Percentage of top 5 provinces correctly grouped in highest cluster.">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">Classification accuracy for largest provinces</p>
+                        </div>
+                    </div>
+                </div>
+
 
             <!-- Choropleth Map -->
             <div class="bg-white border border-gray-200 shadow-lg rounded-lg p-6">
@@ -135,6 +189,22 @@
                             `Total Provinces: ${data.analysis_summary.total_provinces}`;
                         document.getElementById('totalClusters').textContent = 
                             `Total Clusters: ${data.analysis_summary.total_clusters}`;
+                        document.getElementById('silhouetteScore').textContent =  data.evaluation.silhouette.toFixed(3);
+                        document.getElementById('calinskiScore').textContent = Math.round(data.evaluation.calinski_harabasz).toLocaleString();
+                        document.getElementById('top5Accuracy').textContent = `${(data.evaluation.top_5_accuracy * 100).toFixed(1)}%`;
+                        const tooltips = document.querySelectorAll('.tooltip');
+                        tooltips.forEach(tooltip => {
+                            tooltip.addEventListener('mouseenter', e => {
+                                const title = e.target.getAttribute('title');
+                                const tip = document.createElement('div');
+                                tip.className = 'absolute bg-black text-white p-2 rounded text-sm z-50';
+                                tip.textContent = title;
+                                tip.style.top = `${e.pageY + 10}px`;
+                                tip.style.left = `${e.pageX + 10}px`;
+                                document.body.appendChild(tip);
+                                e.target.addEventListener('mouseleave', () => tip.remove());
+                            });
+                        });
 
                         const largest = data.analysis_summary.largest_cluster;
                         document.getElementById('largestClusterInfo').innerHTML = `

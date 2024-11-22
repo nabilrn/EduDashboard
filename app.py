@@ -3,7 +3,10 @@ import plotly.express as px
 from flask import Flask, render_template, request, jsonify
 import numpy as np
 from sklearn.cluster import DBSCAN
-from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.metrics import silhouette_score, calinski_harabasz_score
+from sklearn.cluster import KMeans
 
 app = Flask(__name__)
 
@@ -110,21 +113,127 @@ def preprocess_data(df):
     # Add coordinates
     df['latitude'] = df['wilayah'].map(lambda x: lat_lon_data.get(x, (None, None))[0])
     df['longitude'] = df['wilayah'].map(lambda x: lat_lon_data.get(x, (None, None))[1])
+
+    df['student_density'] = df['total'] / df['total'].sum()
+    df['gender_ratio'] = df['total_l'] / df['total_p']
+    df['education_level_ratio'] = (df['sma_total'] + df['smk_total']) / df['sd_total']
     
     return df.dropna(subset=['latitude', 'longitude'])
 
-def perform_dbscan(df):
-    """Perform DBSCAN clustering"""
-    features = df[['latitude', 'longitude', 'total', 'total_l', 'total_p']]
-    scaler = StandardScaler()
-    scaled_features = scaler.fit_transform(features)
+
+
+
+def perform_kmeans(df, min_clusters=2, max_clusters=10):
+    """Perform K-Means clustering with optimized parameters for better silhouette score"""
+    # Create more sophisticated features
+    coord_scaler = MinMaxScaler()
+    student_scaler = StandardScaler()
+    ratio_scaler = StandardScaler()
     
-    dbscan = DBSCAN(eps=0.5, min_samples=2)
-    df['cluster'] = dbscan.fit_predict(scaled_features)
-    # Convert negative cluster labels (noise points) to the next available cluster number
-    if -1 in df['cluster'].values:
-        df['cluster'] = df['cluster'].replace(-1, df['cluster'].max() + 1)
-    return df
+    # Enhanced feature engineering
+    df['total_per_capita'] = df['total'] / df['total'].mean()
+    df['tk_ratio'] = df['tk_total'] / df['total']
+    df['sd_ratio'] = df['sd_total'] / df['total']
+    df['smp_ratio'] = df['smp_total'] / df['total']
+    df['sma_smk_ratio'] = (df['sma_total'] + df['smk_total']) / df['total']
+    df['gender_balance'] = abs(df['total_l'] - df['total_p']) / df['total']
+    df['early_education_focus'] = (df['tk_total'] + df['kb_total'] + df['tpa_total']) / df['total']
+    df['higher_education_focus'] = (df['sma_total'] + df['smk_total']) / df['total']
+    
+    # Scale coordinates with increased weight
+    coords = coord_scaler.fit_transform(df[['latitude', 'longitude']])
+    
+    # Scale student numbers and density with balanced weight
+    students = student_scaler.fit_transform(df[[
+        'total_per_capita',
+        'tk_ratio',
+        'sd_ratio',
+        'smp_ratio',
+        'sma_smk_ratio'
+    ]])
+    
+    # Scale demographic features
+    demographics = ratio_scaler.fit_transform(df[[
+        'gender_balance',
+        'early_education_focus',
+        'higher_education_focus'
+    ]])
+    
+    # Combine features with optimized weights
+    features = np.hstack([
+        coords * 0.25,  # Geographic proximity
+        students * 0.45,  # Educational distribution
+        demographics * 0.3  # Demographic patterns
+    ])
+    
+    # Apply PCA with variance preservation
+    pca = PCA(n_components=0.98)  # Increased variance retention
+    features_pca = pca.fit_transform(features)
+    
+    # Initialize variables for best clustering
+    best_score = -1
+    best_n_clusters = min_clusters
+    best_labels = None
+    
+    # Try different cluster numbers with multiple initializations
+    for n_clusters in range(min_clusters, max_clusters + 1):
+        # Try multiple initializations for each n_clusters
+        for init_method in ['k-means++', 'random']:
+            for random_state in [42, 123, 256, 789, 1000]:
+                kmeans = KMeans(
+                    n_clusters=n_clusters,
+                    init=init_method,
+                    random_state=random_state,
+                    n_init=20,  # Increased number of initializations
+                    max_iter=500  # Increased maximum iterations
+                )
+                labels = kmeans.fit_predict(features_pca)
+                score = silhouette_score(features_pca, labels)
+                
+                if score > best_score:
+                    best_score = score
+                    best_n_clusters = n_clusters
+                    best_labels = labels
+    
+    # Final clustering with best parameters
+    df['cluster'] = best_labels
+    
+    # Sort clusters by total students and remap labels
+    cluster_totals = df.groupby('cluster')['total'].sum()
+    cluster_mapping = {old: new for new, (old, _) in 
+                      enumerate(sorted(cluster_totals.items(), key=lambda x: x[1], reverse=True))}
+    df['cluster'] = df['cluster'].map(cluster_mapping)
+    
+    return df, features_pca, best_score
+
+def evaluate_clustering(df, features):
+    """
+    Evaluate clustering quality
+    Returns dict of evaluation metrics
+    """
+    # Get cluster labels
+    labels = df['cluster'].values
+    
+    # Calculate evaluation metrics
+    metrics = {
+        'silhouette': silhouette_score(features, labels) if len(set(labels)) > 1 else 0,
+        'calinski_harabasz': calinski_harabasz_score(features, labels) if len(set(labels)) > 1 else 0
+    }
+    
+    # Validate cluster assignments
+    sorted_provinces = df.sort_values('total', ascending=False)
+    top_5_provinces = set(sorted_provinces.head()['wilayah'])
+    cluster_0_provinces = set(df[df['cluster'] == 0]['wilayah'])
+    
+    metrics['top_5_accuracy'] = len(top_5_provinces.intersection(cluster_0_provinces)) / 5
+    
+    # Add cluster statistics
+    metrics['cluster_stats'] = df.groupby('cluster').agg({
+        'total': ['count', 'mean', 'std'],
+        'wilayah': lambda x: list(x)
+    }).to_dict()
+    
+    return metrics
 
 def create_choropleth(df):
     """Create choropleth map visualization"""
@@ -176,7 +285,7 @@ def create_choropleth(df):
             center=dict(lat=-2.5, lon=118)
         ),
         title=dict(
-            text="Education Distribution Clusters in Indonesia (DBSCAN)",
+            text="Education Distribution Clusters in Indonesia (K Means)",
             x=0.5,
             xanchor='center'
         )
@@ -197,7 +306,6 @@ def about():
     return render_template('about.html')
 
 
-
 @app.route('/process', methods=['POST'])
 def process():
     if 'file' not in request.files:
@@ -209,13 +317,17 @@ def process():
         # Load and preprocess data
         df = pd.read_csv(file, encoding='utf-8')
         df_processed = preprocess_data(df)
-
-        # Perform DBSCAN clustering
-        df_clustered = perform_dbscan(df_processed)
-
+        
+        # Perform clustering and get features
+        df_clustered, features, best_score = perform_kmeans(df_processed, min_clusters=2, max_clusters=10)
+        
+        # Get evaluation metrics
+        evaluation_metrics = evaluate_clustering(df_clustered, features)
+        evaluation_metrics['silhouette'] = best_score
+        
         # Generate visualization
         choropleth = create_choropleth(df_clustered)
-
+        
         # Generate analysis summary
         cluster_summary = df_clustered.groupby('cluster')['wilayah'].apply(list).to_dict()
         cluster_stats = df_clustered.groupby('cluster').agg({
@@ -254,8 +366,14 @@ def process():
                 index=False
             ),
             'analysis_summary': analysis_summary,
+            'evaluation': {
+                'silhouette': evaluation_metrics['silhouette'],
+                'calinski_harabasz': evaluation_metrics['calinski_harabasz'],
+                'top_5_accuracy': evaluation_metrics['top_5_accuracy']
+            },
             'success': True
         })
+        
     except Exception as e:
         return jsonify({'error': str(e)})
 
