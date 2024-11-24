@@ -2,11 +2,11 @@ import pandas as pd
 import plotly.express as px
 from flask import Flask, render_template, request, jsonify
 import numpy as np
-from sklearn.cluster import DBSCAN
-from sklearn.decomposition import PCA
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
-from sklearn.metrics import silhouette_score, calinski_harabasz_score
-from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, accuracy_score
+from sklearn.model_selection import train_test_split
 
 app = Flask(__name__)
 
@@ -120,11 +120,8 @@ def preprocess_data(df):
     
     return df.dropna(subset=['latitude', 'longitude'])
 
-
-
-
-def perform_kmeans(df, min_clusters=2, max_clusters=10):
-    """Perform K-Means clustering with optimized parameters for better silhouette score"""
+def perform_classification(df):
+    """Perform classification to analyze geospatial datasets of students in Indonesia"""
     # Create more sophisticated features
     coord_scaler = MinMaxScaler()
     student_scaler = StandardScaler()
@@ -144,7 +141,7 @@ def perform_kmeans(df, min_clusters=2, max_clusters=10):
     coords = coord_scaler.fit_transform(df[['latitude', 'longitude']])
     
     # Scale student numbers and density with balanced weight
-    students = student_scaler.fit_transform(df[[
+    students = student_scaler.fit_transform(df[[ 
         'total_per_capita',
         'tk_ratio',
         'sd_ratio',
@@ -153,7 +150,7 @@ def perform_kmeans(df, min_clusters=2, max_clusters=10):
     ]])
     
     # Scale demographic features
-    demographics = ratio_scaler.fit_transform(df[[
+    demographics = ratio_scaler.fit_transform(df[[ 
         'gender_balance',
         'early_education_focus',
         'higher_education_focus'
@@ -167,73 +164,27 @@ def perform_kmeans(df, min_clusters=2, max_clusters=10):
     ])
     
     # Apply PCA with variance preservation
-    pca = PCA(n_components=0.98)  # Increased variance retention
+    pca = PCA(n_components=0.95)  # Adjusted variance retention
     features_pca = pca.fit_transform(features)
     
-    # Initialize variables for best clustering
-    best_score = -1
-    best_n_clusters = min_clusters
-    best_labels = None
+    # Create target variable (clusters)
+    df['cluster'] = df['wilayah'].apply(lambda x: 0 if x in ['Jawa Barat', 'Jawa Timur', 'Jawa Tengah'] else 1)
     
-    # Try different cluster numbers with multiple initializations
-    for n_clusters in range(min_clusters, max_clusters + 1):
-        # Try multiple initializations for each n_clusters
-        for init_method in ['k-means++', 'random']:
-            for random_state in [42, 123, 256, 789, 1000]:
-                kmeans = KMeans(
-                    n_clusters=n_clusters,
-                    init=init_method,
-                    random_state=random_state,
-                    n_init=20,  # Increased number of initializations
-                    max_iter=500  # Increased maximum iterations
-                )
-                labels = kmeans.fit_predict(features_pca)
-                score = silhouette_score(features_pca, labels)
-                
-                if score > best_score:
-                    best_score = score
-                    best_n_clusters = n_clusters
-                    best_labels = labels
+    # Split data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(features_pca, df['cluster'], test_size=0.3, random_state=42)
     
-    # Final clustering with best parameters
-    df['cluster'] = best_labels
+    # Train a classification model
+    clf = RandomForestClassifier(n_estimators=100, random_state=42)
+    clf.fit(X_train, y_train)
     
-    # Sort clusters by total students and remap labels
-    cluster_totals = df.groupby('cluster')['total'].sum()
-    cluster_mapping = {old: new for new, (old, _) in 
-                      enumerate(sorted(cluster_totals.items(), key=lambda x: x[1], reverse=True))}
-    df['cluster'] = df['cluster'].map(cluster_mapping)
+    # Predict on the test set
+    y_pred = clf.predict(X_test)
     
-    return df, features_pca, best_score
-
-def evaluate_clustering(df, features):
-    """
-    Evaluate clustering quality
-    Returns dict of evaluation metrics
-    """
-    # Get cluster labels
-    labels = df['cluster'].values
+    # Evaluate the model
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred)
     
-    # Calculate evaluation metrics
-    metrics = {
-        'silhouette': silhouette_score(features, labels) if len(set(labels)) > 1 else 0,
-        'calinski_harabasz': calinski_harabasz_score(features, labels) if len(set(labels)) > 1 else 0
-    }
-    
-    # Validate cluster assignments
-    sorted_provinces = df.sort_values('total', ascending=False)
-    top_5_provinces = set(sorted_provinces.head()['wilayah'])
-    cluster_0_provinces = set(df[df['cluster'] == 0]['wilayah'])
-    
-    metrics['top_5_accuracy'] = len(top_5_provinces.intersection(cluster_0_provinces)) / 5
-    
-    # Add cluster statistics
-    metrics['cluster_stats'] = df.groupby('cluster').agg({
-        'total': ['count', 'mean', 'std'],
-        'wilayah': lambda x: list(x)
-    }).to_dict()
-    
-    return metrics
+    return clf, accuracy, report, features_pca
 
 def create_choropleth(df):
     """Create choropleth map visualization"""
@@ -285,13 +236,14 @@ def create_choropleth(df):
             center=dict(lat=-2.5, lon=118)
         ),
         title=dict(
-            text="Education Distribution Clusters in Indonesia (K Means)",
+            text="Education Distribution Clusters in Indonesia (Classification)",
             x=0.5,
             xanchor='center'
         )
     )
 
     return fig.to_json()
+    
 
 @app.route('/')
 def home():
@@ -305,7 +257,6 @@ def index():
 def about():
     return render_template('about.html')
 
-
 @app.route('/process', methods=['POST'])
 def process():
     if 'file' not in request.files:
@@ -318,19 +269,15 @@ def process():
         df = pd.read_csv(file, encoding='utf-8')
         df_processed = preprocess_data(df)
         
-        # Perform clustering and get features
-        df_clustered, features, best_score = perform_kmeans(df_processed, min_clusters=2, max_clusters=10)
-        
-        # Get evaluation metrics
-        evaluation_metrics = evaluate_clustering(df_clustered, features)
-        evaluation_metrics['silhouette'] = best_score
+        # Perform classification and get features
+        clf, accuracy, report, features_pca = perform_classification(df_processed)
         
         # Generate visualization
-        choropleth = create_choropleth(df_clustered)
+        choropleth = create_choropleth(df_processed)
         
         # Generate analysis summary
-        cluster_summary = df_clustered.groupby('cluster')['wilayah'].apply(list).to_dict()
-        cluster_stats = df_clustered.groupby('cluster').agg({
+        cluster_summary = df_processed.groupby('cluster')['wilayah'].apply(list).to_dict()
+        cluster_stats = df_processed.groupby('cluster').agg({
             'total': 'sum',
             'total_l': 'sum',
             'total_p': 'sum'
@@ -339,7 +286,7 @@ def process():
         largest_cluster = max(cluster_stats.items(), key=lambda x: x[1]['total'])[0]
         
         analysis_summary = {
-            "total_provinces": len(df_clustered),
+            "total_provinces": len(df_processed),
             "total_clusters": len(cluster_summary),
             "cluster_summary": {
                 str(cluster): {
@@ -367,9 +314,8 @@ def process():
             ),
             'analysis_summary': analysis_summary,
             'evaluation': {
-                'silhouette': evaluation_metrics['silhouette'],
-                'calinski_harabasz': evaluation_metrics['calinski_harabasz'],
-                'top_5_accuracy': evaluation_metrics['top_5_accuracy']
+                'accuracy': accuracy,
+                'classification_report': report
             },
             'success': True
         })

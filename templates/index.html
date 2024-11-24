@@ -7,6 +7,92 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+        }
+        .table th {
+            background-color: #f4f4f4;
+            text-align: left;
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #f9f9f9;
+        }
+        .table-hover tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+          /* New Classification Report Styles */
+        .report-container {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        .report-header {
+            background: #4F46E5;
+            color: white;
+            padding: 15px 20px;
+        }
+
+        .report-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        .report-table th, 
+        .report-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+        }
+
+        .report-table th {
+            background: #F3F4F6;
+            font-weight: 600;
+            color: #1F2937;
+        }
+
+        .report-table td {
+            color: #374151;
+        }
+
+        .report-table tr:nth-child(even) {
+            background: #F9FAFB;
+        }
+
+        .metric-name {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .accuracy-row {
+            background: #EEF2FF !important;
+            font-weight: 500;
+        }
+
+        .macro-avg-row {
+            background: #F3F4F6;
+            font-weight: 500;
+        }
+
+        .weighted-avg-row {
+            background: #F3F4F6;
+            font-weight: 500;
+        }
+        
+    </style>
 </head>
 <body class="bg-gray-100 font-sans">
     <!-- Header -->
@@ -19,7 +105,7 @@
                         <!-- Icon -->
                         <span class="text-indigo-500">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 20l9-5-9-5-9 5 9 5z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 20l9-5-9-5-9 5z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4l9 5-9 5-9-5 9-5z" />
                             </svg>
                         </span>
@@ -65,7 +151,11 @@
             <!-- Data Preview -->
             <div class="bg-white border border-gray-200 shadow-lg rounded-lg p-6">
                 <h2 class="text-2xl font-semibold text-gray-800 mb-4">Data Preview</h2>
-                <div id="dataPreview" class="overflow-x-auto"></div>
+                <div id="dataPreview" class="overflow-x-auto">
+                    <table class="table table-striped table-hover">
+                        <!-- Table content will be inserted here -->
+                    </table>
+                </div>
             </div>
 
             <!-- Analysis Summary -->
@@ -83,60 +173,37 @@
                     </div>
                 </div>
             </div>
-            <!-- Add this section after Analysis Summary div in resultsSection -->
-                <div class="bg-white border border-gray-200 shadow-lg rounded-lg p-6">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Clustering Evaluation</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Silhouette Score -->
-                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <h3 class="text-lg font-bold text-indigo-600 mb-3">Silhouette Score</h3>
-                            <div class="flex items-center justify-between">
-                                <div id="silhouetteScore" class="text-3xl font-bold text-gray-700"></div>
-                                <div class="text-sm text-gray-500">
-                                    <span class="tooltip" title="Range: -1 to 1. Higher values indicate better cluster separation.">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </span>
-                                </div>
-                            </div>
-                            <p class="text-sm text-gray-500 mt-2">Measures cluster separation quality</p>
-                        </div>
 
-                        <!-- Calinski-Harabasz Score -->
-                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <h3 class="text-lg font-bold text-indigo-600 mb-3">Calinski-Harabasz Score</h3>
-                            <div class="flex items-center justify-between">
-                                <div id="calinskiScore" class="text-3xl font-bold text-gray-700"></div>
-                                <div class="text-sm text-gray-500">
-                                    <span class="tooltip" title="Higher values indicate better-defined clusters.">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </span>
-                                </div>
+            <div class="bg-white border border-gray-200 shadow-lg rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Clustering Evaluation</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Accuracy -->
+                    <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h3 class="text-lg font-bold text-indigo-600 mb-3">Accuracy</h3>
+                        <div class="flex items-center justify-between">
+                            <div id="accuracy" class="text-3xl font-bold text-gray-700"></div>
+                            <div class="text-sm text-gray-500">
+                                <span class="tooltip" title="Overall accuracy of the classification model.">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </span>
                             </div>
-                            <p class="text-sm text-gray-500 mt-2">Measures cluster density</p>
                         </div>
+                        <p class="text-sm text-gray-500 mt-2">Measures overall classification accuracy</p>
+                    </div>
 
-                        <!-- Top 5 Accuracy -->
-                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <h3 class="text-lg font-bold text-indigo-600 mb-3">Top 5 Accuracy</h3>
-                            <div class="flex items-center justify-between">
-                                <div id="top5Accuracy" class="text-3xl font-bold text-gray-700"></div>
-                                <div class="text-sm text-gray-500">
-                                    <span class="tooltip" title="Percentage of top 5 provinces correctly grouped in highest cluster.">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </span>
-                                </div>
-                            </div>
-                            <p class="text-sm text-gray-500 mt-2">Classification accuracy for largest provinces</p>
+                    <!-- New Classification Report -->
+                    <div class="report-container">
+                        <div class="report-header">
+                            <h3>Classification Report</h3>
+                        </div>
+                        <div id="classificationReport">
+                            <!-- Report table will be inserted here by JavaScript -->
                         </div>
                     </div>
                 </div>
-
+            </div>
 
             <!-- Choropleth Map -->
             <div class="bg-white border border-gray-200 shadow-lg rounded-lg p-6">
@@ -167,7 +234,6 @@
     </footer>
 
     <script>
-        // Keep existing JavaScript
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -189,22 +255,76 @@
                             `Total Provinces: ${data.analysis_summary.total_provinces}`;
                         document.getElementById('totalClusters').textContent = 
                             `Total Clusters: ${data.analysis_summary.total_clusters}`;
-                        document.getElementById('silhouetteScore').textContent =  data.evaluation.silhouette.toFixed(3);
-                        document.getElementById('calinskiScore').textContent = Math.round(data.evaluation.calinski_harabasz).toLocaleString();
-                        document.getElementById('top5Accuracy').textContent = `${(data.evaluation.top_5_accuracy * 100).toFixed(1)}%`;
-                        const tooltips = document.querySelectorAll('.tooltip');
-                        tooltips.forEach(tooltip => {
-                            tooltip.addEventListener('mouseenter', e => {
-                                const title = e.target.getAttribute('title');
-                                const tip = document.createElement('div');
-                                tip.className = 'absolute bg-black text-white p-2 rounded text-sm z-50';
-                                tip.textContent = title;
-                                tip.style.top = `${e.pageY + 10}px`;
-                                tip.style.left = `${e.pageX + 10}px`;
-                                document.body.appendChild(tip);
-                                e.target.addEventListener('mouseleave', () => tip.remove());
-                            });
+                        document.getElementById('accuracy').textContent = `${(data.evaluation.accuracy * 100).toFixed(2)}%`;
+                        
+                        // Parse and display classification report in new format
+                        const reportLines = data.evaluation.classification_report.split('\n');
+                        let tableHTML = `
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>Class</th>
+                                        <th>Precision</th>
+                                        <th>Recall</th>
+                                        <th>F1-score</th>
+                                        <th>Support</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+
+                        reportLines.forEach(line => {
+                            if (line.trim()) {
+                                const parts = line.split(/\s+/).filter(Boolean);
+                                if (parts.length >= 5) {
+                                    const isAccuracy = parts[0] === 'accuracy';
+                                    const isMacroAvg = parts[0] === 'macro';
+                                    const isWeightedAvg = parts[0] === 'weighted';
+                                    
+                                    let rowClass = '';
+                                    if (isAccuracy) rowClass = 'accuracy-row';
+                                    else if (isMacroAvg) rowClass = 'macro-avg-row';
+                                    else if (isWeightedAvg) rowClass = 'weighted-avg-row';
+
+                                    if (isAccuracy) {
+                                        tableHTML += `
+                                            <tr class="${rowClass}">
+                                                <td class="metric-name">Accuracy</td>
+                                                <td colspan="3">${parts[1]}</td>
+                                                <td>${parts[2]}</td>
+                                            </tr>
+                                        `;
+                                    } else if (isMacroAvg || isWeightedAvg) {
+                                        const prefix = isMacroAvg ? 'Macro avg' : 'Weighted avg';
+                                        tableHTML += `
+                                            <tr class="${rowClass}">
+                                                <td class="metric-name">${prefix}</td>
+                                                <td>${parts[2]}</td>
+                                                <td>${parts[3]}</td>
+                                                <td>${parts[4]}</td>
+                                                <td>${parts[5]}</td>
+                                            </tr>
+                                        `;
+                                    } else if (parts[0] !== 'precision') {
+                                        tableHTML += `
+                                            <tr>
+                                                <td class="metric-name">Class ${parts[0]}</td>
+                                                <td>${parts[1]}</td>
+                                                <td>${parts[2]}</td>
+                                                <td>${parts[3]}</td>
+                                                <td>${parts[4]}</td>
+                                            </tr>
+                                        `;
+                                    }
+                                }
+                            }
                         });
+
+                        tableHTML += `
+                                </tbody>
+                            </table>
+                        `;
+                        document.getElementById('classificationReport').innerHTML = tableHTML;
 
                         const largest = data.analysis_summary.largest_cluster;
                         document.getElementById('largestClusterInfo').innerHTML = `
